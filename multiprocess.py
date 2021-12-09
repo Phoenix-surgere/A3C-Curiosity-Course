@@ -36,6 +36,7 @@ def worker():
       action = agent.choose_action()
       next_state, reward, done, _ = env.step(action)
       score += reward
+      state = next_state
     scores.append(score)
   print(f"Score of agent id:{os.getpid()}: {np.mean(scores)}")
 
