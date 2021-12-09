@@ -8,51 +8,60 @@ Created on Thu Dec  9 17:14:23 2021
 #WORKS! Note: need to rn on anaconda cmd (both scripts)
 import os
 import torch.multiprocessing as mp
-os.environ['SET_NUM_THREADS'] = '1'
+import gym
+import numpy as np
 
-def worker(name):
-  print(f"hello {name}")
+os.environ['SET_NUM_THREADS'] = '2'
 
+
+class RandomAgent():
+  def __init__(self, env):
+    self.env = env
+    self.env.reset()
+
+  def choose_action(self):
+    action = self.env.action_space.sample()
+    return action
+
+
+def worker():
+  env = gym.make('CartPole-v0')
+  agent = RandomAgent(env)
+  print("ID of process running worker1: {}".format(os.getpid()))
+  n_eps = 5
+  scores = []
+  for i in range(n_eps):
+    done, state, score = False, env.reset(), 0
+    while not done:
+      action = agent.choose_action()
+      next_state, reward, done, _ = env.step(action)
+      score += reward
+    scores.append(score)
+  print(f"Score of agent id:{os.getpid()}: {np.mean(scores)}")
+
+  
 if __name__ == "__main__":
-  #mp.set_start_method('spawn')
-  process = mp.Process(target=worker, args=('date' , ))
-  process.start()
-  process.join()  #so that main process doesnt end before child process
+    print('Multithreading Initiated...')
+    # creating processes
+    p1 = mp.Process(target=worker)
+    p2 = mp.Process(target=worker)
+    p3 = mp.Process(target=worker)
 
+    # starting process 1
+    p1.start()
+    p2.start()
+    p3.start()
 
-# WORKS!
-#import multiprocessing
-#import sys
-#def print_cube(num):
-#    """
-#    function to print cube of given num
-#    """
-#    print("Cube: {}".format(num * num * num), flush=True)
-#  
-#def print_square(num):
-#    """
-#    function to print square of given num
-#    """
-#    print("Square: {}".format(num * num))
-#  
-#if __name__ == "__main__":
-#    print('wat')
-#    # creating processes
-#    p1 = multiprocessing.Process(target=print_square, args=(10, ))
-#    p2 = multiprocessing.Process(target=print_cube, args=(10, ))
-#  
-#    # starting process 1
-#    p1.start()
-#    # starting process 2
-#    p2.start()
-#  
-#    # wait until process 1 is finished
-#    p1.join()
-#    # wait until process 2 is finished
-#    p2.join()
-#  
-#    # both processes finished
-#    print("Done!")
-    
+    print("ID of process p1: {}".format(p1.pid))
+    print("ID of process p2: {}".format(p2.pid))
+    print("ID of process p3: {}".format(p3.pid))
+
+    # wait until process 1 is finished
+    p1.join()
+    p2.join()
+    p3.join()
+
+    #both processes finished
+    print("Done!")
 
 
