@@ -48,6 +48,7 @@ if __name__ == "__main__":
     except RuntimeError:
       pass
     
+    print('Multithreading Initiated...')
     # creating processes
     p1 = mp.Process(target=worker)
     p2 = mp.Process(target=worker)
