@@ -42,7 +42,12 @@ def worker():
 
   
 if __name__ == "__main__":
-    print('Multithreading Initiated...')
+  
+    try:
+      mp.set_start_method('spawn')
+    except RuntimeError:
+      pass
+    
     # creating processes
     p1 = mp.Process(target=worker)
     p2 = mp.Process(target=worker)
